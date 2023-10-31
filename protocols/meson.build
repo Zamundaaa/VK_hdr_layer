@@ -3,8 +3,7 @@ wayland_scanner_path = wayland_scanner_dep.get_variable(pkgconfig: 'wayland_scan
 wayland_scanner = find_program(wayland_scanner_path, native: true)
 
 protocols = [
-	'color-management-v1',
-	'color-representation-v1',
+	'frog-color-management-v1',
 ]
 
 protocols_client_src = []
