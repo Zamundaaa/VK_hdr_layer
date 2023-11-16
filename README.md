@@ -1,6 +1,6 @@
 ## Vulkan Wayland HDR WSI Layer
 
-Vulkan layer utilizing a small color management / HDR protocol for experimentation. Upstream protocol for color management is here: [wp_color_management](https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/14).
+Vulkan layer utilizing a small color management / HDR protocol for experimentation. Upstream protocol proposal for color management is here: [wp_color_management](https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/14).
 
 Implements the following vulkan extensions, if the protocol is supported by the compositor.
 - [VK_EXT_swapchain_colorspace](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_swapchain_colorspace.html)
