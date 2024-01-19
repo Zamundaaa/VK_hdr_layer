@@ -21,3 +21,14 @@ Here is an example command line (assuming this layer has been installed to the s
 Another client that works is Quake II RTX, when run in Wayland native mode. To do that, put `SDL_VIDEODRIVER=wayland ENABLE_HDR_WSI=1 %command%` into its launch arguments.
 
 Debugging what layers are being loaded can be done by setting `VK_LOADER_DEBUG=error,warn,info`.
+
+### Testing with Wine Wayland
+
+As of [Wine 9.0](https://gitlab.winehq.org/wine/wine/-/releases/wine-9.0), Wine's native wayland mode supports HDR through DXVK.    
+To enable it, run `wine reg.exe add HKCU\\Software\\Wine\\Drivers /v Graphics /d x11,wayland` inside your Wine Prefix, Then unset the `DISPLAY` variable.  
+Make sure you set `ENABLE_HDR_WSI=1` when running an application or game.
+
+### Testing with Video Players
+
+[mpv](https://mpv.io/) Supports HDR Video playback through Vulkan's HDR Surface.    
+To play an HDR video, set `ENABLE_HDR_WSI=1` and run mpv with `--vo=gpu-next --target-colorspace-hint --gpu-api=vulkan --gpu-context=waylandvk`
