@@ -25,7 +25,7 @@ Debugging what layers are being loaded can be done by setting `VK_LOADER_DEBUG=e
 ### Testing with Wine Wayland
 
 As of [Wine 9.0](https://gitlab.winehq.org/wine/wine/-/releases/wine-9.0), Wine's native wayland mode supports HDR through DXVK.    
-To enable it, run `wine reg.exe add HKCU\\Software\\Wine\\Drivers /v Graphics /d x11,wayland` inside your Wine Prefix, Then unset the `DISPLAY` variable.  
+To enable it, run `wine reg.exe add HKCU\\Software\\Wine\\Drivers /v Graphics /d x11,wayland` inside your Wine Prefix, Then unset the `DISPLAY` variable and set `DXVK_HDR=1`
 Make sure you set `ENABLE_HDR_WSI=1` when running an application or game.
 
 ### Testing with Video Players
