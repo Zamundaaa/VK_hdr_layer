@@ -1,6 +1,6 @@
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #include "vkroots.h"
-#include "xx-color-management-v1-client-protocol.h"
+#include "xx-color-management-v2-client-protocol.h"
 #include "color-representation-v1-client-protocol.h"
 
 #include <cmath>
@@ -31,8 +31,8 @@ namespace HdrLayer
   struct ColorDescription
   {
     VkSurfaceFormat2KHR surface;
-    xx_color_manager_v1_primaries primaries_named;
-    xx_color_manager_v1_transfer_function tf_named;
+    xx_color_manager_v2_primaries primaries_named;
+    xx_color_manager_v2_transfer_function tf_named;
     bool extended_volume;
   };
 
@@ -42,8 +42,8 @@ namespace HdrLayer
                           VK_FORMAT_A2B10G10R10_UNORM_PACK32,
                           VK_COLOR_SPACE_HDR10_ST2084_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_BT2020,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_BT2020,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_ST2084_PQ,
           .extended_volume = false,
       },
       ColorDescription{
@@ -51,8 +51,8 @@ namespace HdrLayer
                           VK_FORMAT_A2R10G10B10_UNORM_PACK32,
                           VK_COLOR_SPACE_HDR10_ST2084_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_BT2020,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_BT2020,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_ST2084_PQ,
           .extended_volume = false,
       },
       ColorDescription{
@@ -60,8 +60,8 @@ namespace HdrLayer
                           VK_FORMAT_A2B10G10R10_UNORM_PACK32,
                           VK_COLOR_SPACE_HDR10_HLG_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_BT2020,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_BT2020,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_HLG,
           .extended_volume = false,
       },
       ColorDescription{
@@ -69,8 +69,8 @@ namespace HdrLayer
                           VK_FORMAT_A2R10G10B10_UNORM_PACK32,
                           VK_COLOR_SPACE_HDR10_HLG_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_BT2020,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_BT2020,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_HLG,
           .extended_volume = false,
       },
       ColorDescription{
@@ -78,8 +78,8 @@ namespace HdrLayer
                           VK_FORMAT_R16G16B16A16_SFLOAT,
                           VK_COLOR_SPACE_BT2020_LINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_BT2020,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_LINEAR,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_BT2020,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_LINEAR,
           .extended_volume = false,
       },
       ColorDescription{
@@ -87,8 +87,8 @@ namespace HdrLayer
                           VK_FORMAT_A2B10G10R10_UNORM_PACK32,
                           VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_DISPLAY_P3,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_HLG,
           .extended_volume = false,
       },
       ColorDescription{
@@ -96,8 +96,8 @@ namespace HdrLayer
                           VK_FORMAT_A2R10G10B10_UNORM_PACK32,
                           VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_DISPLAY_P3,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_HLG,
           .extended_volume = false,
       },
       ColorDescription{
@@ -105,8 +105,8 @@ namespace HdrLayer
                           VK_FORMAT_R16G16B16A16_SFLOAT,
                           VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_LINEAR,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_DISPLAY_P3,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_LINEAR,
           .extended_volume = false,
       },
       ColorDescription{
@@ -114,8 +114,8 @@ namespace HdrLayer
                           VK_FORMAT_A2B10G10R10_UNORM_PACK32,
                           VK_COLOR_SPACE_BT709_NONLINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_SRGB,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT709,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_SRGB,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_BT709,
           .extended_volume = true,
       },
       ColorDescription{
@@ -123,8 +123,8 @@ namespace HdrLayer
                           VK_FORMAT_A2R10G10B10_UNORM_PACK32,
                           VK_COLOR_SPACE_BT709_NONLINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_SRGB,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT709,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_SRGB,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_BT709,
           .extended_volume = true,
       },
       ColorDescription{
@@ -132,8 +132,8 @@ namespace HdrLayer
                           VK_FORMAT_R16G16B16A16_SFLOAT,
                           VK_COLOR_SPACE_BT709_LINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_SRGB,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_LINEAR,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_SRGB,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_LINEAR,
           .extended_volume = true,
       },
       ColorDescription{
@@ -141,8 +141,8 @@ namespace HdrLayer
                           VK_FORMAT_R16G16B16A16_SFLOAT,
                           VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT,
                       }},
-          .primaries_named = XX_COLOR_MANAGER_V1_PRIMARIES_SRGB,
-          .tf_named = XX_COLOR_MANAGER_V1_TRANSFER_FUNCTION_LINEAR,
+          .primaries_named = XX_COLOR_MANAGER_V2_PRIMARIES_SRGB,
+          .tf_named = XX_COLOR_MANAGER_V2_TRANSFER_FUNCTION_LINEAR,
           .extended_volume = true,
       }};
 
@@ -152,7 +152,7 @@ namespace HdrLayer
 
     wl_display *display;
     wl_event_queue *queue;
-    xx_color_manager_v1 *colorManagement;
+    xx_color_manager_v2 *colorManagement;
     // wp_color_representation_manager_v1 *colorRepresentationMgr;
 
     std::vector<uint32_t> features;
@@ -160,7 +160,7 @@ namespace HdrLayer
     std::vector<uint32_t> primaries_named;
 
     wl_surface *surface;
-    xx_color_management_surface_v1 *colorSurface;
+    xx_color_management_surface_v2 *colorSurface;
     // wp_color_representation_v1 *colorRepresentation;
   };
   VKROOTS_DEFINE_SYNCHRONIZED_MAP_TYPE(HdrSurface, VkSurfaceKHR);
@@ -171,7 +171,7 @@ namespace HdrLayer
     int primaries;
     int tf;
 
-    xx_image_description_v1 *colorDescription;
+    xx_image_description_v2 *colorDescription;
     bool desc_dirty;
   };
   VKROOTS_DEFINE_SYNCHRONIZED_MAP_TYPE(HdrSwapchain, VkSwapchainKHR);
@@ -252,13 +252,13 @@ namespace HdrLayer
         HdrSurface::remove(*pSurface);
         return VK_SUCCESS;
       }
-      if (!contains_u32(HdrSurface::get(*pSurface)->features, XX_COLOR_MANAGER_V1_FEATURE_PARAMETRIC))
+      if (!contains_u32(HdrSurface::get(*pSurface)->features, XX_COLOR_MANAGER_V2_FEATURE_PARAMETRIC))
       {
         fprintf(stderr, "[HDR Layer] color management implementation doesn't support parametric image descriptions..\n");
         HdrSurface::remove(*pSurface);
         return VK_SUCCESS;
       }
-      if (!contains_u32(HdrSurface::get(*pSurface)->features, XX_COLOR_MANAGER_V1_FEATURE_SET_PRIMARIES))
+      if (!contains_u32(HdrSurface::get(*pSurface)->features, XX_COLOR_MANAGER_V2_FEATURE_SET_PRIMARIES))
       {
         fprintf(stderr, "[HDR Layer] color management implementation doesn't support SET_PRIMARIES..\n");
         HdrSurface::remove(*pSurface);
@@ -273,8 +273,8 @@ namespace HdrLayer
 
       auto hdrSurface = HdrSurface::get(*pSurface);
 
-      xx_color_management_surface_v1 *colorSurface = xx_color_manager_v1_get_surface(hdrSurface->colorManagement, pCreateInfo->surface);
-      xx_color_management_surface_v1_add_listener(colorSurface, &color_surface_interface_listener, nullptr);
+      xx_color_management_surface_v2 *colorSurface = xx_color_manager_v2_get_surface(hdrSurface->colorManagement, pCreateInfo->surface);
+      xx_color_management_surface_v2_add_listener(colorSurface, &color_surface_interface_listener, nullptr);
       // wp_color_representation_v1 *colorRepresentation = wp_color_representation_manager_v1_create(hdrSurface->colorRepresentationMgr, pCreateInfo->surface);
       wl_display_flush(hdrSurface->display);
 
@@ -320,7 +320,7 @@ namespace HdrLayer
       for (auto desc = s_ExtraHDRSurfaceFormats.begin(); desc != s_ExtraHDRSurfaceFormats.end(); ++desc)
       {
         // fprintf(stderr, "[HDR Layer] Testing format: %u colorspace: %u\n", desc->surface.surfaceFormat.format, desc->surface.surfaceFormat.colorSpace);
-        if (contains_u32(hdrSurface->tf_named, desc->tf_named) && contains_u32(hdrSurface->primaries_named, desc->primaries_named) && (!desc->extended_volume || contains_u32(hdrSurface->features, XX_COLOR_MANAGER_V1_FEATURE_EXTENDED_TARGET_VOLUME)) && std::find(pixelFormats.begin(), pixelFormats.end(), desc->surface.surfaceFormat.format) != pixelFormats.end())
+        if (contains_u32(hdrSurface->tf_named, desc->tf_named) && contains_u32(hdrSurface->primaries_named, desc->primaries_named) && (!desc->extended_volume || contains_u32(hdrSurface->features, XX_COLOR_MANAGER_V2_FEATURE_EXTENDED_TARGET_VOLUME)) && std::find(pixelFormats.begin(), pixelFormats.end(), desc->surface.surfaceFormat.format) != pixelFormats.end())
         {
           fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc->surface.surfaceFormat.format, desc->surface.surfaceFormat.colorSpace);
           extraFormats.push_back(desc->surface.surfaceFormat);
@@ -383,7 +383,7 @@ namespace HdrLayer
       {
         // fprintf(stderr, "[HDR Layer] Testing format: %u colorspace: %u\n", desc->surface.surfaceFormat.format, desc->surface.surfaceFormat.colorSpace);
         if (
-            contains_u32(hdrSurface->tf_named, desc->tf_named) && contains_u32(hdrSurface->primaries_named, desc->primaries_named) && (!desc->extended_volume || contains_u32(hdrSurface->features, XX_COLOR_MANAGER_V1_FEATURE_EXTENDED_TARGET_VOLUME)) && std::find(pixelFormats.begin(), pixelFormats.end(), desc->surface.surfaceFormat.format) != pixelFormats.end())
+            contains_u32(hdrSurface->tf_named, desc->tf_named) && contains_u32(hdrSurface->primaries_named, desc->primaries_named) && (!desc->extended_volume || contains_u32(hdrSurface->features, XX_COLOR_MANAGER_V2_FEATURE_EXTENDED_TARGET_VOLUME)) && std::find(pixelFormats.begin(), pixelFormats.end(), desc->surface.surfaceFormat.format) != pixelFormats.end())
         {
           fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc->surface.surfaceFormat.format, desc->surface.surfaceFormat.colorSpace);
           extraFormats.push_back(desc->surface);
@@ -424,9 +424,9 @@ namespace HdrLayer
     {
       if (auto state = HdrSurface::get(surface))
       {
-        xx_color_management_surface_v1_destroy(state->colorSurface);
+        xx_color_management_surface_v2_destroy(state->colorSurface);
         // wp_color_representation_v1_destroy(state->colorRepresentation);
-        xx_color_manager_v1_destroy(state->colorManagement);
+        xx_color_manager_v2_destroy(state->colorManagement);
         // wp_color_representation_manager_v1_destroy(state->colorRepresentationMgr);
         wl_event_queue_destroy(state->queue);
       }
@@ -469,24 +469,24 @@ namespace HdrLayer
     }
 
   private:
-    static constexpr struct xx_color_manager_v1_listener color_interface_listener
+    static constexpr struct xx_color_manager_v2_listener color_interface_listener
     {
       .supported_intent = [](void *data,
-                             struct xx_color_manager_v1 *xx_color_manager_v1,
+                             struct xx_color_manager_v2 *xx_color_manager_v2,
                              uint32_t render_intent) {},
       .supported_feature = [](void *data,
-                              struct xx_color_manager_v1 *xx_color_manager_v1,
+                              struct xx_color_manager_v2 *xx_color_manager_v2,
                               uint32_t feature)
       {
         auto surface = reinterpret_cast<HdrSurfaceData *>(data);
         surface->features.push_back(feature);
       },
-      .supported_tf_named = [](void *data, struct xx_color_manager_v1 *xx_color_manager_v1, uint32_t tf_code)
+      .supported_tf_named = [](void *data, struct xx_color_manager_v2 *xx_color_manager_v2, uint32_t tf_code)
       {
         auto surface = reinterpret_cast<HdrSurfaceData *>(data);
         surface->tf_named.push_back(tf_code);
       },
-      .supported_primaries_named = [](void *data, struct xx_color_manager_v1 *xx_color_manager_v1, uint32_t primaries_code)
+      .supported_primaries_named = [](void *data, struct xx_color_manager_v2 *xx_color_manager_v2, uint32_t primaries_code)
       {
         auto surface = reinterpret_cast<HdrSurfaceData *>(data);
         surface->primaries_named.push_back(primaries_code);
@@ -503,10 +503,10 @@ namespace HdrLayer
                             uint32_t code_point) {}
     };
 
-    static constexpr struct xx_color_management_surface_v1_listener color_surface_interface_listener
+    static constexpr struct xx_color_management_surface_v2_listener color_surface_interface_listener
     {
       .preferred_changed = [](void *data,
-                              struct xx_color_management_surface_v1 *xx_color_management_surface_v1) {}
+                              struct xx_color_management_surface_v2 *xx_color_management_surface_v2) {}
     };
 
     static constexpr wl_registry_listener s_registryListener = {
@@ -514,10 +514,10 @@ namespace HdrLayer
         {
         auto surface = reinterpret_cast<HdrSurfaceData *>(data);
 
-        if (interface == "xx_color_manager_v1"sv) {
-          surface->colorManagement = reinterpret_cast<xx_color_manager_v1 *>(
-            wl_registry_bind(registry, name, &xx_color_manager_v1_interface, version));
-          xx_color_manager_v1_add_listener(surface->colorManagement, &color_interface_listener, data);
+        if (interface == "xx_color_manager_v2"sv) {
+          surface->colorManagement = reinterpret_cast<xx_color_manager_v2 *>(
+            wl_registry_bind(registry, name, &xx_color_manager_v2_interface, version));
+          xx_color_manager_v2_add_listener(surface->colorManagement, &color_interface_listener, data);
         }
         // else if (interface == "wp_color_representation_manager_v1"sv) {
         //   surface->colorRepresentationMgr = reinterpret_cast<wp_color_representation_manager_v1 *>(
@@ -599,11 +599,11 @@ namespace HdrLayer
       {
         // if (pCreateInfo->compositeAlpha == VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR)
         // {
-        //   wp_color_representation_v1_set_alpha_mode(hdrSurface->colorRepresentation, WP_COLOR_REPRESENTATION_V1_ALPHA_MODE_PREMULTIPLIED_ELECTRICAL);
+        //   wp_color_representation_v1_set_alpha_mode(hdrSurface->colorRepresentation, WP_COLOR_REPRESENTATION_V2_ALPHA_MODE_PREMULTIPLIED_ELECTRICAL);
         // }
         // else if (pCreateInfo->compositeAlpha == VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR)
         // {
-        //   wp_color_representation_v1_set_alpha_mode(hdrSurface->colorRepresentation, WP_COLOR_REPRESENTATION_V1_ALPHA_MODE_STRAIGHT);
+        //   wp_color_representation_v1_set_alpha_mode(hdrSurface->colorRepresentation, WP_COLOR_REPRESENTATION_V2_ALPHA_MODE_STRAIGHT);
         // }
 
         auto primaries = 0;
@@ -629,17 +629,16 @@ namespace HdrLayer
         }
         */
 
-        xx_image_description_v1 *desc = nullptr;
+        xx_image_description_v2 *desc = nullptr;
 
         if (primaries != 0 && tf != 0)
         {
           auto status = DescStatus::WAITING;
-          xx_image_description_creator_params_v1 *params = xx_color_manager_v1_new_parametric_creator(hdrSurface->colorManagement);
-          xx_image_description_creator_params_v1_set_primaries_named(params, primaries);
-          xx_image_description_creator_params_v1_set_tf_named(params, tf);
-          desc = xx_image_description_creator_params_v1_create(params);
-          xx_image_description_creator_params_v1_destroy(params);
-          xx_image_description_v1_add_listener(desc, &image_description_interface_listener, &status);
+          xx_image_description_creator_params_v2 *params = xx_color_manager_v2_new_parametric_creator(hdrSurface->colorManagement);
+          xx_image_description_creator_params_v2_set_primaries_named(params, primaries);
+          xx_image_description_creator_params_v2_set_tf_named(params, tf);
+          desc = xx_image_description_creator_params_v2_create(params);
+          xx_image_description_v2_add_listener(desc, &image_description_interface_listener, &status);
           while (status == DescStatus::WAITING)
           {
             wl_display_roundtrip_queue(hdrSurface->display, hdrSurface->queue);
@@ -692,8 +691,8 @@ namespace HdrLayer
         }
 
         const VkHdrMetadataEXT &metadata = pMetadata[i];
-        xx_image_description_creator_params_v1 *params = xx_color_manager_v1_new_parametric_creator(hdrSurface->colorManagement);
-        xx_image_description_creator_params_v1_set_mastering_display_primaries(
+        xx_image_description_creator_params_v2 *params = xx_color_manager_v2_new_parametric_creator(hdrSurface->colorManagement);
+        xx_image_description_creator_params_v2_set_mastering_display_primaries(
             params,
             (uint32_t)round(metadata.displayPrimaryRed.x * 10000.0),
             (uint32_t)round(metadata.displayPrimaryRed.y * 10000.0),
@@ -703,18 +702,18 @@ namespace HdrLayer
             (uint32_t)round(metadata.displayPrimaryBlue.y * 10000.0),
             (uint32_t)round(metadata.whitePoint.x * 10000.0),
             (uint32_t)round(metadata.whitePoint.y * 10000.0));
-        xx_image_description_creator_params_v1_set_mastering_luminance(
+        xx_image_description_creator_params_v2_set_mastering_luminance(
             params,
             (uint32_t)round(metadata.minLuminance * 10000.0),
             (uint32_t)round(metadata.maxLuminance));
-        xx_image_description_creator_params_v1_set_primaries_named(params, hdrSwapchain->primaries);
-        xx_image_description_creator_params_v1_set_tf_named(params, hdrSwapchain->tf);
-        xx_image_description_creator_params_v1_set_max_cll(params, (uint32_t)round(metadata.maxContentLightLevel));
-        xx_image_description_creator_params_v1_set_max_fall(params, (uint32_t)round(metadata.maxFrameAverageLightLevel));
+        xx_image_description_creator_params_v2_set_primaries_named(params, hdrSwapchain->primaries);
+        xx_image_description_creator_params_v2_set_tf_named(params, hdrSwapchain->tf);
+        xx_image_description_creator_params_v2_set_max_cll(params, (uint32_t)round(metadata.maxContentLightLevel));
+        xx_image_description_creator_params_v2_set_max_fall(params, (uint32_t)round(metadata.maxFrameAverageLightLevel));
 
         auto status = DescStatus::WAITING;
-        xx_image_description_v1 *desc = xx_image_description_creator_params_v1_create(params);
-        xx_image_description_v1_add_listener(desc, &image_description_interface_listener, &status);
+        xx_image_description_v2 *desc = xx_image_description_creator_params_v2_create(params);
+        xx_image_description_v2_add_listener(desc, &image_description_interface_listener, &status);
         while (status == DescStatus::WAITING)
         {
           wl_display_roundtrip_queue(hdrSurface->display, hdrSurface->queue);
@@ -749,11 +748,11 @@ namespace HdrLayer
             auto hdrSurface = HdrSurface::get(hdrSwapchain->surface);
             if (hdrSwapchain->colorDescription)
             {
-              xx_color_management_surface_v1_set_image_description(hdrSurface->colorSurface, hdrSwapchain->colorDescription, XX_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
+              xx_color_management_surface_v2_set_image_description(hdrSurface->colorSurface, hdrSwapchain->colorDescription, XX_COLOR_MANAGER_V2_RENDER_INTENT_PERCEPTUAL);
             }
             else
             {
-              xx_color_management_surface_v1_set_default_image_description(hdrSurface->colorSurface);
+              xx_color_management_surface_v2_unset_image_description(hdrSurface->colorSurface);
             }
             hdrSwapchain->desc_dirty = false;
           }
@@ -764,11 +763,11 @@ namespace HdrLayer
     }
 
   private:
-    static constexpr struct xx_image_description_v1_listener image_description_interface_listener
+    static constexpr struct xx_image_description_v2_listener image_description_interface_listener
     {
       .failed = [](
                     void *data,
-                    struct xx_image_description_v1 *xx_image_description_v1,
+                    struct xx_image_description_v2 *xx_image_description_v2,
                     uint32_t cause,
                     const char *msg)
       {
@@ -776,7 +775,7 @@ namespace HdrLayer
         auto state = reinterpret_cast<enum DescStatus *>(data);
         *state = DescStatus::FAILED;
       },
-      .ready = [](void *data, struct xx_image_description_v1 *xx_image_description_v1, uint32_t identity)
+      .ready = [](void *data, struct xx_image_description_v2 *xx_image_description_v2, uint32_t identity)
       {
         auto state = reinterpret_cast<enum DescStatus *>(data);
         *state = DescStatus::READY;
