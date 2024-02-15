@@ -1,3 +1,3 @@
 [submodule "subprojects/vkroots"]
 	path = subprojects/vkroots
-	url = git@github.com:Joshua-Ashton/vkroots.git
+	url = https://github.com/Joshua-Ashton/vkroots.git
