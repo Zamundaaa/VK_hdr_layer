@@ -236,7 +236,6 @@ public:
             return pDispatch->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
 
         uint32_t count = 0;
-        std::vector<VkFormat> pixelFormats = {};
         auto result = pDispatch->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &count, nullptr);
         if (result != VK_SUCCESS) {
             return result;
@@ -247,14 +246,15 @@ public:
             return result;
         }
 
-        for (uint32_t i = 0; i < count; i++) {
-            pixelFormats.push_back(formats[i].format);
-        }
-
         std::vector<VkSurfaceFormatKHR> extraFormats = {};
-        for (auto desc = s_ExtraHDRSurfaceFormats.begin(); desc != s_ExtraHDRSurfaceFormats.end(); ++desc) {
-            fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc->surface.surfaceFormat.format, desc->surface.surfaceFormat.colorSpace);
-            extraFormats.push_back(desc->surface.surfaceFormat);
+        for (const auto &desc : s_ExtraHDRSurfaceFormats) {
+            const bool hasFormat = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
+                return desc.surface.surfaceFormat.format == fmt.format;
+            });
+            if (hasFormat) {
+                fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc.surface.surfaceFormat.format, desc.surface.surfaceFormat.colorSpace);
+                extraFormats.push_back(desc.surface.surfaceFormat);
+            }
         }
 
         return vkroots::helpers::append(
@@ -279,7 +279,6 @@ public:
         }
 
         uint32_t count = 0;
-        std::vector<VkFormat> pixelFormats = {};
         auto result = pDispatch->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, pSurfaceInfo->surface, &count, nullptr);
         if (result != VK_SUCCESS) {
             return result;
@@ -289,14 +288,16 @@ public:
         if (result != VK_SUCCESS) {
             return result;
         }
-        for (uint32_t i = 0; i < count; i++) {
-            pixelFormats.push_back(formats[i].format);
-        }
 
         std::vector<VkSurfaceFormat2KHR> extraFormats = {};
-        for (auto desc = s_ExtraHDRSurfaceFormats.begin(); desc != s_ExtraHDRSurfaceFormats.end(); ++desc) {
-            fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc->surface.surfaceFormat.format, desc->surface.surfaceFormat.colorSpace);
-            extraFormats.push_back(desc->surface);
+        for (const auto &desc : s_ExtraHDRSurfaceFormats) {
+            const bool hasFormat = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
+                return desc.surface.surfaceFormat.format == fmt.format;
+            });
+            if (hasFormat) {
+                fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc.surface.surfaceFormat.format, desc.surface.surfaceFormat.colorSpace);
+                extraFormats.push_back(desc.surface);
+            }
         }
 
         return vkroots::helpers::append(
