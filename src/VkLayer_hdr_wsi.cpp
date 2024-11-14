@@ -352,9 +352,14 @@ public:
         if (auto state = HdrSurface::get(surface)) {
             if (state->frogColorSurface) {
                 frog_color_managed_surface_destroy(state->frogColorSurface);
+            }
+            if (state->frogColorManagement) {
                 frog_color_management_factory_v1_destroy(state->frogColorManagement);
-            } else {
+            }
+            if (state->xxColorSurface) {
                 xx_color_management_surface_v4_destroy(state->xxColorSurface);
+            }
+            if (state->xxColorManager) {
                 xx_color_manager_v4_destroy(state->xxColorManager);
             }
             wl_event_queue_destroy(state->queue);
