@@ -637,16 +637,20 @@ public:
                         xx_image_description_creator_params_v4_set_tf_named(creator, hdrSwapchain->xxTransferFunction);
                         xx_image_description_creator_params_v4_set_max_fall(creator, std::round(metadata.maxFrameAverageLightLevel));
                         xx_image_description_creator_params_v4_set_max_cll(creator, std::round(metadata.maxContentLightLevel));
-                        xx_image_description_creator_params_v4_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
-                        xx_image_description_creator_params_v4_set_mastering_display_primaries(creator,
-                                                                                               std::round(metadata.displayPrimaryRed.x * 10000.0),
-                                                                                               std::round(metadata.displayPrimaryRed.y * 10000.0),
-                                                                                               std::round(metadata.displayPrimaryGreen.x * 10000.0),
-                                                                                               std::round(metadata.displayPrimaryGreen.y * 10000.0),
-                                                                                               std::round(metadata.displayPrimaryBlue.x * 10000.0),
-                                                                                               std::round(metadata.displayPrimaryBlue.y * 10000.0),
-                                                                                               std::round(metadata.whitePoint.x * 10000.0),
-                                                                                               std::round(metadata.whitePoint.y * 10000.0));
+                        const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->supportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->supportedFeatures.end();
+                        if (hasMasteringPrimaries) {
+                            xx_image_description_creator_params_v4_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
+                            xx_image_description_creator_params_v4_set_mastering_display_primaries(creator,
+                                std::round(metadata.displayPrimaryRed.x * 10000.0),
+                                std::round(metadata.displayPrimaryRed.y * 10000.0),
+                                std::round(metadata.displayPrimaryGreen.x * 10000.0),
+                                std::round(metadata.displayPrimaryGreen.y * 10000.0),
+                                std::round(metadata.displayPrimaryBlue.x * 10000.0),
+                                std::round(metadata.displayPrimaryBlue.y * 10000.0),
+                                std::round(metadata.whitePoint.x * 10000.0),
+                                std::round(metadata.whitePoint.y * 10000.0)
+                            );
+                        }
                         const bool hasCustomLuminance = std::ranges::find(hdrSurface->supportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_SET_LUMINANCES) != hdrSurface->supportedFeatures.end();
                         if (hasCustomLuminance && hdrSwapchain->xxTransferFunction == XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_LINEAR) {
                             // NOTE that this assumes that this is Windows-style scRGB
