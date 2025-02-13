@@ -5,6 +5,7 @@ wayland_scanner = find_program(wayland_scanner_path, native: true)
 protocols = [
 	'frog-color-management-v1',
 	'xx-color-management-v4',
+	'color-management-v1',
 ]
 
 protocols_client_src = []
