@@ -141,9 +141,9 @@ struct HdrSurfaceData {
     frog_color_management_factory_v1 *frogColorManagement;
     xx_color_manager_v4 *xxColorManager;
 
-    std::vector<xx_color_manager_v4_feature> supportedFeatures;
-    std::vector<xx_color_manager_v4_primaries> supportedPrimaries;
-    std::vector<xx_color_manager_v4_transfer_function> supportedTransferFunctions;
+    std::vector<xx_color_manager_v4_feature> xxSupportedFeatures;
+    std::vector<xx_color_manager_v4_primaries> xxSupportedPrimaries;
+    std::vector<xx_color_manager_v4_transfer_function> xxSupportedTransferFunctions;
 
     wl_surface *surface;
     frog_color_managed_surface *frogColorSurface;
@@ -241,7 +241,7 @@ public:
 
             hdrSurface->frogColorSurface = frogColorSurface;
         } else {
-            const bool hasParametric = std::ranges::find(hdrSurface->supportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_PARAMETRIC) != hdrSurface->supportedFeatures.end();
+            const bool hasParametric = std::ranges::find(hdrSurface->xxSupportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_PARAMETRIC) != hdrSurface->xxSupportedFeatures.end();
             if (!hasParametric) {
                 fprintf(stderr, "[HDR Layer] wayland compositor is lacking support for parametric image descriptions\n");
                 HdrSurface::remove(*pSurface);
@@ -325,8 +325,8 @@ public:
                 return desc.surface.surfaceFormat.format == fmt.format;
             });
             if (hdrSurface->xxColorSurface) {
-                hasFormat &= std::ranges::find(hdrSurface->supportedPrimaries, desc.xxPrimaries) != hdrSurface->supportedPrimaries.end();
-                hasFormat &= std::ranges::find(hdrSurface->supportedTransferFunctions, desc.xxTransferFunction) != hdrSurface->supportedTransferFunctions.end();
+                hasFormat &= std::ranges::find(hdrSurface->xxSupportedPrimaries, desc.xxPrimaries) != hdrSurface->xxSupportedPrimaries.end();
+                hasFormat &= std::ranges::find(hdrSurface->xxSupportedTransferFunctions, desc.xxTransferFunction) != hdrSurface->xxSupportedTransferFunctions.end();
             }
             if (hasFormat) {
                 fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc.surface.surfaceFormat.format, desc.surface.surfaceFormat.colorSpace);
@@ -419,17 +419,17 @@ private:
                                uint32_t max_full_frame_luminance){}
     };
 
-    static constexpr xx_color_manager_v4_listener s_colorManagerListener {
+    static constexpr xx_color_manager_v4_listener s_xxColorManagerListener {
         .supported_intent = [](void *data, xx_color_manager_v4 *xx_color_manager_v4, uint32_t render_intent) {
         },
         .supported_feature = [](void *data, xx_color_manager_v4 *xx_color_manager_v4, uint32_t feature) {
-            reinterpret_cast<HdrSurfaceData *>(data)->supportedFeatures.push_back(xx_color_manager_v4_feature(feature));
+            reinterpret_cast<HdrSurfaceData *>(data)->xxSupportedFeatures.push_back(xx_color_manager_v4_feature(feature));
         },
         .supported_tf_named = [](void *data, xx_color_manager_v4 *xx_color_manager_v4, uint32_t tf) {
-            reinterpret_cast<HdrSurfaceData *>(data)->supportedTransferFunctions.push_back(xx_color_manager_v4_transfer_function(tf));
+            reinterpret_cast<HdrSurfaceData *>(data)->xxSupportedTransferFunctions.push_back(xx_color_manager_v4_transfer_function(tf));
         },
         .supported_primaries_named = [](void *data, xx_color_manager_v4 *xx_color_manager_v4, uint32_t primaries) {
-            reinterpret_cast<HdrSurfaceData *>(data)->supportedPrimaries.push_back(xx_color_manager_v4_primaries(primaries));
+            reinterpret_cast<HdrSurfaceData *>(data)->xxSupportedPrimaries.push_back(xx_color_manager_v4_primaries(primaries));
         },
     };
 
@@ -442,14 +442,14 @@ private:
                 surface->frogColorManagement = reinterpret_cast<frog_color_management_factory_v1 *>(wl_registry_bind(registry, name, &frog_color_management_factory_v1_interface, 1));
             } else if (interface == "xx_color_manager_v4"sv) {
                 surface->xxColorManager = reinterpret_cast<xx_color_manager_v4 *>(wl_registry_bind(registry, name, &xx_color_manager_v4_interface, 1));
-                xx_color_manager_v4_add_listener(surface->xxColorManager, &s_colorManagerListener, surface);
+                xx_color_manager_v4_add_listener(surface->xxColorManager, &s_xxColorManagerListener, surface);
             }
         },
         .global_remove = [](void *data, wl_registry * registry, uint32_t name) {},
     };
 };
 
-static constexpr xx_image_description_v4_listener s_imageDescriptionListener {
+static constexpr xx_image_description_v4_listener s_xxImageDescriptionListener {
     .failed = [](void *userData, xx_image_description_v4 *descr, uint32_t cause, const char *reason) {
         fprintf(stderr, "[HDR Layer] creating image description failed! %s", reason);
         *reinterpret_cast<bool *>(userData) = true;
@@ -637,7 +637,7 @@ public:
                         xx_image_description_creator_params_v4_set_tf_named(creator, hdrSwapchain->xxTransferFunction);
                         xx_image_description_creator_params_v4_set_max_fall(creator, std::round(metadata.maxFrameAverageLightLevel));
                         xx_image_description_creator_params_v4_set_max_cll(creator, std::round(metadata.maxContentLightLevel));
-                        const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->supportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->supportedFeatures.end();
+                        const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->xxSupportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->xxSupportedFeatures.end();
                         if (hasMasteringPrimaries) {
                             xx_image_description_creator_params_v4_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
                             xx_image_description_creator_params_v4_set_mastering_display_primaries(creator,
@@ -651,7 +651,7 @@ public:
                                 std::round(metadata.whitePoint.y * 10000.0)
                             );
                         }
-                        const bool hasCustomLuminance = std::ranges::find(hdrSurface->supportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_SET_LUMINANCES) != hdrSurface->supportedFeatures.end();
+                        const bool hasCustomLuminance = std::ranges::find(hdrSurface->xxSupportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_SET_LUMINANCES) != hdrSurface->xxSupportedFeatures.end();
                         if (hasCustomLuminance && hdrSwapchain->xxTransferFunction == XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_LINEAR) {
                             // NOTE that this assumes that this is Windows-style scRGB
                             xx_image_description_creator_params_v4_set_luminances(creator, 0, 80, 203);
@@ -659,7 +659,7 @@ public:
                         const auto imageDescription = xx_image_description_creator_params_v4_create(creator);
 
                         bool done = false;
-                        xx_image_description_v4_add_listener(imageDescription, &s_imageDescriptionListener, &done);
+                        xx_image_description_v4_add_listener(imageDescription, &s_xxImageDescriptionListener, &done);
                         wl_display_dispatch_queue(hdrSurface->display, hdrSurface->queue);
                         // In theory the compositor could wait for a while here. In practice it doesn't.
                         while (!done) {
