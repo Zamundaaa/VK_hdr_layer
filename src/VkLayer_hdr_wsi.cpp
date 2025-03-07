@@ -17,13 +17,6 @@ using namespace std::literals;
 namespace HdrLayer
 {
 
-static bool contains(const std::vector<const char *> vec, std::string_view lookupValue)
-{
-    return std::ranges::any_of(vec, [&lookupValue](const auto &value) {
-        return value == lookupValue;
-    });
-}
-
 struct ColorDescription {
     VkSurfaceFormat2KHR surface;
     frog_color_managed_surface_primaries frogPrimaries;
@@ -146,6 +139,7 @@ static std::vector<ColorDescription> s_ExtraHDRSurfaceFormats = {
 
 struct HdrSurfaceData {
     VkInstance instance;
+    bool supportsPassthrough = false;
 
     wl_display *display;
     wl_event_queue *queue;
@@ -195,27 +189,6 @@ enum DescStatus {
 class VkInstanceOverrides
 {
 public:
-    static VkResult CreateInstance(
-        PFN_vkCreateInstance pfnCreateInstanceProc,
-        const VkInstanceCreateInfo *pCreateInfo,
-        const VkAllocationCallbacks *pAllocator,
-        VkInstance *pInstance)
-    {
-        auto enabledExts = std::vector<const char *>(
-                               pCreateInfo->ppEnabledExtensionNames,
-                               pCreateInfo->ppEnabledExtensionNames + pCreateInfo->enabledExtensionCount);
-
-        if (contains(enabledExts, VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME)) {
-            std::erase(enabledExts, VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME);
-        }
-
-        VkInstanceCreateInfo createInfo = *pCreateInfo;
-        createInfo.enabledExtensionCount = uint32_t(enabledExts.size());
-        createInfo.ppEnabledExtensionNames = enabledExts.data();
-
-        return pfnCreateInstanceProc(&createInfo, pAllocator, pInstance);
-    }
-
     static VkResult CreateWaylandSurfaceKHR(
         const vkroots::VkInstanceDispatch *pDispatch,
         VkInstance instance,
@@ -234,6 +207,7 @@ public:
 
         auto hdrSurface = HdrSurface::create(*pSurface, HdrSurfaceData{
             .instance = instance,
+            .supportsPassthrough = false,
             .display = pCreateInfo->display,
             .queue = queue,
             .frogColorManagement = nullptr,
@@ -308,8 +282,19 @@ public:
             return result;
         }
 
+        hdrSurface->supportsPassthrough = std::ranges::any_of(formats, [](const VkSurfaceFormatKHR fmt) {
+            return fmt.colorSpace == VK_COLOR_SPACE_PASS_THROUGH_EXT;
+        });
+
         std::vector<VkSurfaceFormatKHR> extraFormats = {};
         for (const auto &desc : s_ExtraHDRSurfaceFormats) {
+            const bool alreadySupportsColorspace = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
+                return desc.surface.surfaceFormat.format == fmt.format
+                    && desc.surface.surfaceFormat.colorSpace == fmt.colorSpace;
+            });
+            if (alreadySupportsColorspace) {
+                continue;
+            }
             bool hasFormat = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
                 return desc.surface.surfaceFormat.format == fmt.format;
             });
@@ -359,8 +344,19 @@ public:
             return result;
         }
 
+        hdrSurface->supportsPassthrough = std::ranges::any_of(formats, [](const VkSurfaceFormatKHR fmt) {
+            return fmt.colorSpace == VK_COLOR_SPACE_PASS_THROUGH_EXT;
+        });
+
         std::vector<VkSurfaceFormat2KHR> extraFormats = {};
         for (const auto &desc : s_ExtraHDRSurfaceFormats) {
+            const bool alreadySupportsColorspace = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
+                return desc.surface.surfaceFormat.format == fmt.format
+                    && desc.surface.surfaceFormat.colorSpace == fmt.colorSpace;
+            });
+            if (alreadySupportsColorspace) {
+                continue;
+            }
             bool hasFormat = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
                 return desc.surface.surfaceFormat.format == fmt.format;
             });
@@ -564,9 +560,12 @@ public:
         VkSwapchainCreateInfoKHR swapchainInfo = *pCreateInfo;
 
         if (hdrSurface) {
-            // If this is a custom surface
-            // Force the colorspace to sRGB before sending to the driver.
-            swapchainInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+            // If this is a custom surface, force the colorspace to something the driver won't touch
+            if (hdrSurface->supportsPassthrough) {
+                swapchainInfo.imageColorSpace = VK_COLOR_SPACE_PASS_THROUGH_EXT;
+            } else {
+                swapchainInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+            }
 
             fprintf(stderr, "[HDR Layer] Creating swapchain for id: %u - format: %s - colorspace: %s\n",
                     wl_proxy_get_id(reinterpret_cast<struct wl_proxy *>(hdrSurface->surface)),
