@@ -29,7 +29,6 @@ add_project_arguments(cppc.get_supported_arguments([
   '-ffast-math',
 ]), language: 'cpp')
 
-dep_x11 = dependency('x11')
 vulkan_dep = dependency('vulkan')
 
 # Vulkan headers are installed separately from the loader (which ships the
