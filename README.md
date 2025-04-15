@@ -6,6 +6,33 @@ Implements the following vulkan extensions, if either frog-color-management-v1 o
 
 KWin supports the frog protocol since Plasma 6.0, and xx-color-management-v4 in 6.2.
 
+# How to Build from source
+
+0. Ensure you have Dependencies/Requirments
+- [Ninja build tool](https://github.com/ninja-build/ninja/wiki)
+- [Meson build system](https://mesonbuild.com/Getting-meson.html)
+- Vulkan development libraries (including headers)
+- X11 development libraries
+
+1. clone the repository and navigate into the directory:
+
+```bash
+git clone https://github.com/Zamundaaa/VK_hdr_layer.git
+cd VK_hdr_layer
+```
+2. Use Mason/ninja to build and install the layer:
+
+```bash
+meson setup builddir
+ninja -C builddir
+sudo meson install -C builddir
+```
+
+This will install the layer files into the appropriate system directories.
+
+3. Enable HDR in your compositor 
+[Arch - HDR monitor Support](https://wiki.archlinux.org/title/HDR_monitor_support) has links with instructions for different compositors
+
 # Testing with Quake II RTX
 
 Quake II RTX suports HDR when run in Wayland native mode with this Vulkan layer. To do that, put `SDL_VIDEODRIVER=wayland ENABLE_HDR_WSI=1 %command%` into its launch arguments.
