@@ -12,7 +12,7 @@ KWin supports the frog protocol since Plasma 6.0, and xx-color-management-v4 in 
 - [Ninja build tool](https://github.com/ninja-build/ninja/wiki)
 - [Meson build system](https://mesonbuild.com/Getting-meson.html)
 - Vulkan development libraries (including headers)
-- X11 development libraries
+- Wayland development libraries
 
 1. clone the repository and navigate into the directory:
 
