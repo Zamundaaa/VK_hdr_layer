@@ -1,5 +1,7 @@
 # Vulkan Wayland HDR WSI Layer
 
+_NOTE: This hack is not needed as of mesa 25.1, if used with Proton GE. See their [release page](https://github.com/GloriousEggroll/proton-ge-custom/releases/tag/GE-Proton10-2) for more info._
+
 Implements the following vulkan extensions, if either frog-color-management-v1 or xx-color-management-v4 Wayland protocol is supported by the compositor:
 - [VK_EXT_swapchain_colorspace](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_swapchain_colorspace.html)
 - [VK_EXT_hdr_metadata](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_hdr_metadata.html)
