@@ -1,6 +1,7 @@
 # Vulkan Wayland HDR WSI Layer
 
 _NOTE: Mesa 25.1+ implements the color management protocol directly, this Vulkan layer is no longer necessary with that.
+
 Implements the following vulkan extensions, if either frog-color-management-v1 or xx-color-management-v4 Wayland protocol is supported by the compositor:
 - [VK_EXT_swapchain_colorspace](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_swapchain_colorspace.html)
 - [VK_EXT_hdr_metadata](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VK_EXT_hdr_metadata.html)
