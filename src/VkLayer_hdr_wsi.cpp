@@ -196,7 +196,6 @@ public:
             HdrSurface::remove(*pSurface);
             return VK_SUCCESS;
         }
-        hdrSurface->colorSurface = wp_color_manager_v1_get_surface(hdrSurface->colorManager, pCreateInfo->surface);
 
         fprintf(stderr, "[HDR Layer] Created HDR surface\n");
         return VK_SUCCESS;
@@ -240,11 +239,9 @@ public:
             bool hasFormat = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
                 return desc.surface.surfaceFormat.format == fmt.format;
             });
-            if (hdrSurface->colorSurface) {
-                hasFormat &= std::ranges::find(hdrSurface->supportedPrimaries, desc.primaries) != hdrSurface->supportedPrimaries.end();
-                hasFormat &= std::ranges::find(hdrSurface->supportedTransferFunctions, desc.transferFunction) != hdrSurface->supportedTransferFunctions.end();
-                hasFormat &= !desc.extended_volume || std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_EXTENDED_TARGET_VOLUME) != hdrSurface->supportedFeatures.end();
-            }
+            hasFormat &= std::ranges::find(hdrSurface->supportedPrimaries, desc.primaries) != hdrSurface->supportedPrimaries.end();
+            hasFormat &= std::ranges::find(hdrSurface->supportedTransferFunctions, desc.transferFunction) != hdrSurface->supportedTransferFunctions.end();
+            hasFormat &= !desc.extended_volume || std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_EXTENDED_TARGET_VOLUME) != hdrSurface->supportedFeatures.end();
             if (hasFormat) {
                 fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc.surface.surfaceFormat.format, desc.surface.surfaceFormat.colorSpace);
                 extraFormats.push_back(desc.surface.surfaceFormat);
@@ -299,10 +296,8 @@ public:
             bool hasFormat = std::ranges::any_of(formats, [&desc](const VkSurfaceFormatKHR fmt) {
                 return desc.surface.surfaceFormat.format == fmt.format;
             });
-            if (hdrSurface->colorSurface) {
-                hasFormat &= std::ranges::find(hdrSurface->supportedPrimaries, desc.primaries) != hdrSurface->supportedPrimaries.end();
-                hasFormat &= std::ranges::find(hdrSurface->supportedTransferFunctions, desc.transferFunction) != hdrSurface->supportedTransferFunctions.end();
-            }
+            hasFormat &= std::ranges::find(hdrSurface->supportedPrimaries, desc.primaries) != hdrSurface->supportedPrimaries.end();
+            hasFormat &= std::ranges::find(hdrSurface->supportedTransferFunctions, desc.transferFunction) != hdrSurface->supportedTransferFunctions.end();
             if (hasFormat) {
                 fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc.surface.surfaceFormat.format, desc.surface.surfaceFormat.colorSpace);
                 extraFormats.push_back(desc.surface);
@@ -476,30 +471,32 @@ public:
         }
 
         VkResult result = pDispatch->CreateSwapchainKHR(device, &swapchainInfo, pAllocator, pSwapchain);
-        if (hdrSurface && hdrSurface->colorSurface && result == VK_SUCCESS) {
-            const auto it = std::ranges::find_if(s_ExtraHDRSurfaceFormats, [&pCreateInfo](const ColorDescription &description) {
-                return description.surface.surfaceFormat.colorSpace == pCreateInfo->imageColorSpace;
-            });
-            if (it != s_ExtraHDRSurfaceFormats.end()) {
-                const auto &description = *it;
-                HdrSwapchain::create(*pSwapchain, HdrSwapchainData{
-                    .surface = pCreateInfo->surface,
-                    .primaries = description.primaries,
-                    .transferFunction = description.transferFunction,
-                    .desc_dirty = true,
-                });
-            } else {
-                if (pCreateInfo->imageColorSpace != VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-                    fprintf(stderr, "[HDR Layer] Unknown colorspace %d, assuming untagged\n", pCreateInfo->imageColorSpace);
-                }
-                HdrSwapchain::create(*pSwapchain, HdrSwapchainData{
-                    .surface = pCreateInfo->surface,
-                    .untagged = true,
-                    .desc_dirty = true,
-                });
-            }
+        if (result != VK_SUCCESS || !hdrSurface) {
+            return result;
         }
-        return result;
+        const auto it = std::ranges::find_if(s_ExtraHDRSurfaceFormats, [&pCreateInfo](const ColorDescription &description) {
+            return description.surface.surfaceFormat.colorSpace == pCreateInfo->imageColorSpace;
+        });
+        if (it != s_ExtraHDRSurfaceFormats.end()) {
+            const auto &description = *it;
+            HdrSwapchain::create(*pSwapchain, HdrSwapchainData{
+                .surface = pCreateInfo->surface,
+                .primaries = description.primaries,
+                .transferFunction = description.transferFunction,
+                .desc_dirty = true,
+            });
+        } else {
+            if (pCreateInfo->imageColorSpace != VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+                && pCreateInfo->imageColorSpace != VK_COLOR_SPACE_PASS_THROUGH_EXT) {
+                fprintf(stderr, "[HDR Layer] Unknown colorspace %d, assuming untagged\n", pCreateInfo->imageColorSpace);
+            }
+            HdrSwapchain::create(*pSwapchain, HdrSwapchainData{
+                .surface = pCreateInfo->surface,
+                .untagged = true,
+                .desc_dirty = true,
+            });
+        }
+        return VK_SUCCESS;
     }
 
     static void
@@ -544,46 +541,50 @@ public:
                 if (hdrSwapchain->desc_dirty) {
                     auto hdrSurface = HdrSurface::get(hdrSwapchain->surface);
                     const auto &metadata = hdrSwapchain->metadata;
-                    if (hdrSurface->colorSurface) {
-                        if (hdrSwapchain->untagged) {
-                            wp_color_management_surface_v1_unset_image_description(hdrSurface->colorSurface);
-                        } else {
-                            constexpr double primaryUnit = 1'000'000.0;
-                            const auto creator = wp_color_manager_v1_create_parametric_creator(hdrSurface->colorManager);
-                            wp_image_description_creator_params_v1_set_primaries_named(creator, hdrSwapchain->primaries);
-                            wp_image_description_creator_params_v1_set_tf_named(creator, hdrSwapchain->transferFunction);
-                            wp_image_description_creator_params_v1_set_max_fall(creator, std::round(metadata.maxFrameAverageLightLevel));
-                            wp_image_description_creator_params_v1_set_max_cll(creator, std::round(metadata.maxContentLightLevel));
-                            const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->supportedFeatures.end();
-                            if (hasMasteringPrimaries) {
-                                if (metadata.maxLuminance > metadata.minLuminance) wp_image_description_creator_params_v1_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
-                                wp_image_description_creator_params_v1_set_mastering_display_primaries(creator,
-                                                                                                       std::round(metadata.displayPrimaryRed.x * primaryUnit),
-                                                                                                       std::round(metadata.displayPrimaryRed.y * primaryUnit),
-                                                                                                       std::round(metadata.displayPrimaryGreen.x * primaryUnit),
-                                                                                                       std::round(metadata.displayPrimaryGreen.y * primaryUnit),
-                                                                                                       std::round(metadata.displayPrimaryBlue.x * primaryUnit),
-                                                                                                       std::round(metadata.displayPrimaryBlue.y * primaryUnit),
-                                                                                                       std::round(metadata.whitePoint.x * primaryUnit),
-                                                                                                       std::round(metadata.whitePoint.y * primaryUnit));
-                            }
-                            const bool hasCustomLuminance = std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_SET_LUMINANCES) != hdrSurface->supportedFeatures.end();
-                            if (hasCustomLuminance && hdrSwapchain->transferFunction == WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_EXT_LINEAR) {
-                                // NOTE that this assumes that this is Windows-style scRGB
-                                wp_image_description_creator_params_v1_set_luminances(creator, 0, 80, 203);
-                            }
-                            const auto imageDescription = wp_image_description_creator_params_v1_create(creator);
-
-                            bool done = false;
-                            wp_image_description_v1_add_listener(imageDescription, &s_imageDescriptionListener, &done);
-                            wl_display_dispatch_queue(hdrSurface->display, hdrSurface->queue);
-                            // In theory the compositor could wait for a while here. In practice it doesn't.
-                            while (!done) {
-                                wl_display_roundtrip_queue(hdrSurface->display, hdrSurface->queue);
-                            }
-                            wp_color_management_surface_v1_set_image_description(hdrSurface->colorSurface, imageDescription, WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
-                            wp_image_description_v1_destroy(imageDescription);
+                    if (hdrSwapchain->untagged) {
+                        if (hdrSurface->colorSurface) {
+                            wp_color_management_surface_v1_destroy(hdrSurface->colorSurface);
+                            hdrSurface->colorSurface = nullptr;
                         }
+                    } else {
+                        if (!hdrSurface->colorSurface) {
+                            hdrSurface->colorSurface = wp_color_manager_v1_get_surface(hdrSurface->colorManager, hdrSurface->surface);
+                        }
+                        constexpr double primaryUnit = 1'000'000.0;
+                        const auto creator = wp_color_manager_v1_create_parametric_creator(hdrSurface->colorManager);
+                        wp_image_description_creator_params_v1_set_primaries_named(creator, hdrSwapchain->primaries);
+                        wp_image_description_creator_params_v1_set_tf_named(creator, hdrSwapchain->transferFunction);
+                        wp_image_description_creator_params_v1_set_max_fall(creator, std::round(metadata.maxFrameAverageLightLevel));
+                        wp_image_description_creator_params_v1_set_max_cll(creator, std::round(metadata.maxContentLightLevel));
+                        const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->supportedFeatures.end();
+                        if (hasMasteringPrimaries) {
+                            if (metadata.maxLuminance > metadata.minLuminance) wp_image_description_creator_params_v1_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
+                            wp_image_description_creator_params_v1_set_mastering_display_primaries(creator,
+                                                                                                    std::round(metadata.displayPrimaryRed.x * primaryUnit),
+                                                                                                    std::round(metadata.displayPrimaryRed.y * primaryUnit),
+                                                                                                    std::round(metadata.displayPrimaryGreen.x * primaryUnit),
+                                                                                                    std::round(metadata.displayPrimaryGreen.y * primaryUnit),
+                                                                                                    std::round(metadata.displayPrimaryBlue.x * primaryUnit),
+                                                                                                    std::round(metadata.displayPrimaryBlue.y * primaryUnit),
+                                                                                                    std::round(metadata.whitePoint.x * primaryUnit),
+                                                                                                    std::round(metadata.whitePoint.y * primaryUnit));
+                        }
+                        const bool hasCustomLuminance = std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_SET_LUMINANCES) != hdrSurface->supportedFeatures.end();
+                        if (hasCustomLuminance && hdrSwapchain->transferFunction == WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_EXT_LINEAR) {
+                            // NOTE that this assumes that this is Windows-style scRGB
+                            wp_image_description_creator_params_v1_set_luminances(creator, 0, 80, 203);
+                        }
+                        const auto imageDescription = wp_image_description_creator_params_v1_create(creator);
+
+                        bool done = false;
+                        wp_image_description_v1_add_listener(imageDescription, &s_imageDescriptionListener, &done);
+                        wl_display_dispatch_queue(hdrSurface->display, hdrSurface->queue);
+                        // In theory the compositor could wait for a while here. In practice it doesn't.
+                        while (!done) {
+                            wl_display_roundtrip_queue(hdrSurface->display, hdrSurface->queue);
+                        }
+                        wp_color_management_surface_v1_set_image_description(hdrSurface->colorSurface, imageDescription, WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
+                        wp_image_description_v1_destroy(imageDescription);
                     }
                     hdrSwapchain->desc_dirty = false;
                 }
