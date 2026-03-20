@@ -247,6 +247,18 @@ public:
                 extraFormats.push_back(desc.surface.surfaceFormat);
             }
         }
+        std::unordered_map<VkFormat, bool> passthrough;
+        for (const auto &format : formats) {
+            passthrough[format.format] |= format.colorSpace == VK_COLOR_SPACE_PASS_THROUGH_EXT;
+        }
+        for (const auto &[format, hasPassthrough] : passthrough) {
+            if (!hasPassthrough) {
+                extraFormats.push_back(VkSurfaceFormatKHR{
+                    .format = format,
+                    .colorSpace = VK_COLOR_SPACE_PASS_THROUGH_EXT,
+                });
+            }
+        }
 
         return vkroots::helpers::append(
                    pDispatch->GetPhysicalDeviceSurfaceFormatsKHR,
@@ -301,6 +313,22 @@ public:
             if (hasFormat) {
                 fprintf(stderr, "[HDR Layer] Enabling format: %u colorspace: %u\n", desc.surface.surfaceFormat.format, desc.surface.surfaceFormat.colorSpace);
                 extraFormats.push_back(desc.surface);
+            }
+        }
+        std::unordered_map<VkFormat, bool> passthrough;
+        for (const auto &format : formats) {
+            passthrough[format.format] |= format.colorSpace == VK_COLOR_SPACE_PASS_THROUGH_EXT;
+        }
+        for (const auto &[format, hasPassthrough] : passthrough) {
+            if (!hasPassthrough) {
+                extraFormats.push_back(VkSurfaceFormat2KHR{
+                    .sType = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR,
+                    .pNext = nullptr,
+                    .surfaceFormat= {
+                        .format = format,
+                        .colorSpace = VK_COLOR_SPACE_PASS_THROUGH_EXT,
+                    },
+                });
             }
         }
 
