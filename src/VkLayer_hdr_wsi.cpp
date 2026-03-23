@@ -741,7 +741,7 @@ public:
                             wp_image_description_creator_params_v1_set_max_cll(creator, std::round(metadata.maxContentLightLevel));
                             const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->supportedFeatures.end();
                             if (hasMasteringPrimaries) {
-                                wp_image_description_creator_params_v1_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
+                                if (metadata.maxLuminance > metadata.minLuminance) wp_image_description_creator_params_v1_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
                                 wp_image_description_creator_params_v1_set_mastering_display_primaries(creator,
                                                                                                        std::round(metadata.displayPrimaryRed.x * primaryUnit),
                                                                                                        std::round(metadata.displayPrimaryRed.y * primaryUnit),
@@ -779,7 +779,7 @@ public:
                         xx_image_description_creator_params_v4_set_max_cll(creator, std::round(metadata.maxContentLightLevel));
                         const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->xxSupportedFeatures, XX_COLOR_MANAGER_V4_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->xxSupportedFeatures.end();
                         if (hasMasteringPrimaries) {
-                            xx_image_description_creator_params_v4_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
+                            if (metadata.maxLuminance > metadata.minLuminance) xx_image_description_creator_params_v4_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
                             xx_image_description_creator_params_v4_set_mastering_display_primaries(creator,
                                 std::round(metadata.displayPrimaryRed.x * 10000.0),
                                 std::round(metadata.displayPrimaryRed.y * 10000.0),
