@@ -559,6 +559,43 @@ public:
         }
     }
 
+    struct wayland_hdr_metadata {
+        uint32_t min_luminance;
+        uint32_t max_luminance;
+        uint32_t max_fall;
+        uint32_t max_cll;
+    };
+    static std::optional<wayland_hdr_metadata> validateHdrMetadata(const VkHdrMetadataEXT &metadata)
+    {
+        constexpr int MIN_LUM_FACTOR = 10000;
+        wayland_hdr_metadata ret {
+            .min_luminance = (uint32_t)std::round(MIN_LUM_FACTOR * metadata.minLuminance),
+            .max_luminance = (uint32_t)std::round(metadata.maxLuminance),
+            .max_fall = (uint32_t)std::round(metadata.maxFrameAverageLightLevel),
+            .max_cll = (uint32_t)std::round(metadata.maxContentLightLevel),
+        };
+        if (ret.max_cll != 0) {
+            const bool invalid = ret.max_cll * MIN_LUM_FACTOR < ret.min_luminance
+                || (ret.max_luminance != 0 && ret.max_cll > ret.max_luminance);
+            if (invalid) {
+                return std::nullopt;
+            }
+        }
+        if (ret.max_fall != 0) {
+            const bool invalid = ret.max_fall * MIN_LUM_FACTOR < ret.min_luminance
+                || (ret.max_luminance != 0 && ret.max_fall > ret.max_luminance)
+                || (ret.max_cll != 0 && ret.max_fall > ret.max_cll);
+            if (invalid) {
+                return std::nullopt;
+            }
+        }
+
+        if (ret.max_luminance != 0 && ret.max_luminance * MIN_LUM_FACTOR <= ret.min_luminance) {
+            return std::nullopt;
+        }
+        return ret;
+    }
+
     static VkResult QueuePresentKHR(
         const vkroots::VkDeviceDispatch *pDispatch,
         VkQueue queue,
@@ -568,7 +605,6 @@ public:
             if (auto hdrSwapchain = HdrSwapchain::get(pPresentInfo->pSwapchains[i])) {
                 if (hdrSwapchain->desc_dirty) {
                     auto hdrSurface = HdrSurface::get(hdrSwapchain->surface);
-                    const auto &metadata = hdrSwapchain->metadata;
                     if (hdrSwapchain->untagged) {
                         if (hdrSurface->colorSurface) {
                             wp_color_management_surface_v1_destroy(hdrSurface->colorSurface);
@@ -582,11 +618,21 @@ public:
                         const auto creator = wp_color_manager_v1_create_parametric_creator(hdrSurface->colorManager);
                         wp_image_description_creator_params_v1_set_primaries_named(creator, hdrSwapchain->primaries);
                         wp_image_description_creator_params_v1_set_tf_named(creator, hdrSwapchain->transferFunction);
-                        wp_image_description_creator_params_v1_set_max_fall(creator, std::round(metadata.maxFrameAverageLightLevel));
-                        wp_image_description_creator_params_v1_set_max_cll(creator, std::round(metadata.maxContentLightLevel));
+
+                        const auto &metadata = hdrSwapchain->metadata;
+                        const auto wlMetadata = validateHdrMetadata(metadata);
+
+                        if (wlMetadata && wlMetadata->max_fall) {
+                            wp_image_description_creator_params_v1_set_max_fall(creator, wlMetadata->max_fall);
+                        }
+                        if (wlMetadata && wlMetadata->max_cll) {
+                            wp_image_description_creator_params_v1_set_max_cll(creator, wlMetadata->max_cll);
+                        }
                         const bool hasMasteringPrimaries = std::ranges::find(hdrSurface->supportedFeatures, WP_COLOR_MANAGER_V1_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES) != hdrSurface->supportedFeatures.end();
                         if (hasMasteringPrimaries) {
-                            if (metadata.maxLuminance > metadata.minLuminance) wp_image_description_creator_params_v1_set_mastering_luminance(creator, std::round(metadata.minLuminance * 10'000.0), std::round(metadata.maxLuminance));
+                            if (wlMetadata && wlMetadata->max_luminance) {
+                                wp_image_description_creator_params_v1_set_mastering_luminance(creator, wlMetadata->min_luminance, wlMetadata->max_luminance);
+                            }
                             wp_image_description_creator_params_v1_set_mastering_display_primaries(creator,
                                                                                                     std::round(metadata.displayPrimaryRed.x * primaryUnit),
                                                                                                     std::round(metadata.displayPrimaryRed.y * primaryUnit),
